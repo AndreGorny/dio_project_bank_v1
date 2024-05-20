@@ -1,18 +1,30 @@
+from services import depositar, sacar, exibir_extrato, criar_usuario, \
+    criar_conta, listar_contas, listar_usuarios
+
 saldo = 0
 limite = 500
 extrato = []
 numero_saques = 0
+usuarios = []
+contas = []
 LIMITE_SAQUES = 3
+AGENCIA = "0001"
 
 menu = """
 
-======== TEST BANK V_1 ========
+======== TEST BANK V_2 ========
 
     Selecione a opção desejada:
 
+    [nu] Novo Usuário
+    [nc] Nova Conta
+    -----------------------
     [d] Depositar
     [s] Sacar
     [e] Extrato
+    -----------------------
+    [lu] Listar Usuários
+    [lc] Listar Contas
     [q] Sair
 
 ===============================
@@ -21,62 +33,45 @@ menu = """
 
 while 1:
 
+    print(f"\n    Saldo atual: R${saldo:.2f}")
     opcao = input(menu)
 
     if opcao == "d":
-        while 1:
-            valor_deposito = float(input(
-                "Informe o valor a ser depositado: R$"))
-            if valor_deposito <= 0:
-                print("Valor inválido. O valor deve ser maior que zero. \n")
-            else:
-                extrato.append(+valor_deposito)
-                print("Depósito efetuado com sucesso!")
-                saldo += valor_deposito
-                print(f"Seu novo saldo é de R${saldo:.2f} \n")
-                break
+        valor = float(input("Informe o valor a ser depositado: R$"))
 
-    elif opcao == "s":  # não está limitando a quantidade de saques
-        valor_saque = float(input("Informe o valor a ser sacado: R$"))
-        if numero_saques >= LIMITE_SAQUES:
-            print(f"Seu limite é de {LIMITE_SAQUES} saques. Quantidade "
-                  "excedida \n")
+        saldo, extrato = depositar(saldo, valor, extrato)
+    elif opcao == "s":
 
-        elif valor_saque > limite:
-            print(f"O limite máximo é de R${limite:.2f}. Valor excedido \n")
+        valor = float(input("Informe o valor a ser sacado: R$"))
 
-        elif valor_saque > saldo:
-            print(f"Saldo insuficiente. Seu saldo atual é de R${saldo:.2f} \n")
-
-        elif valor_saque <= 0:
-            print("Valor inválido. O valor deve ser positivo.")
-
-        else:
-            saldo -= valor_saque
-            extrato.append(-valor_saque)
-            numero_saques += 1
-            print("Sucesso! Retire o dinheiro! \n")
-            if numero_saques == LIMITE_SAQUES:
-                print("Você utilizou seu limite diário de saques. \n")
-            else:
-                print(f"Você ainda tem {LIMITE_SAQUES - numero_saques} saques "
-                      "disponíveis \n")
-                print(f"Seu novo saldo é de R${saldo:.2f} \n")
+        saldo, extrato = sacar(
+            saldo=saldo,
+            valor=valor,
+            extrato=extrato,
+            limite=limite,
+            numero_saques=numero_saques,
+            limite_saques=LIMITE_SAQUES
+        )
 
     elif opcao == "e":
-        print("\n============= EXTRATO =============\n")
-        if extrato == []:
-            print("Não foram efetuadas movimentações.")
-            print("\n===================================")
-        else:
-            for valor in extrato:
-                if valor >= 0:
-                    print(f"Depósito  +{valor:.2f}")
-                else:
-                    print(f"Saque {valor:.2f}")
-            print("\n", 30*"-", "\n")
-            print(f"Saldo atual: R${saldo:.2f} \n")
-            print("===================================")
+
+        exibir_extrato(saldo, extrato=extrato)
+
+    elif opcao == "nu":
+
+        criar_usuario(usuarios)
+
+    elif opcao == "nc":
+        numero_conta = len(contas) + 1
+        nova_conta = criar_conta(AGENCIA, numero_conta, usuarios)
+
+        contas.append(nova_conta)
+
+    elif opcao == "lc":
+        listar_contas(contas)
+
+    elif opcao == "lu":
+        listar_usuarios(usuarios)
 
     elif opcao == "q":
         print("Obrigado por usar o sistema. Até logo! \n")
